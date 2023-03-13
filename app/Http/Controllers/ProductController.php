@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Models\Category;
 
 class ProductController extends Controller
 {
@@ -15,7 +16,11 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        $products = Product::all();
+
+        return response()->json([
+            "status" => "success",
+            "products" => $products], 200);
     }
 
     /**
@@ -36,7 +41,20 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        //
+        $category = Category::firstWhere('name', $request->category);
+
+        $product = $category->products()->create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+        ]);
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Product created successfully",
+            "Product" => $product], 201);
+
+        
     }
 
     /**
@@ -47,7 +65,9 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        //
+        return response()->json([
+            "status" => "success",
+            "product" => $product], 200);
     }
 
     /**
@@ -70,7 +90,19 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
-        //
+        if($request->category) {
+            $category = Category::firstWhere('name', $request->category);
+
+            $product->category()->associate($category);
+        }
+        
+        $product->update($request->all());
+    
+        
+        return response()->json([
+            "status" => "success",
+            "message" => "Product updated successfully",
+            "Product" => $product], 200);
     }
 
     /**
@@ -81,6 +113,10 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        $product->delete();
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Product deleted successfully"], 200);
     }
 }
