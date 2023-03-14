@@ -9,6 +9,11 @@ use App\Models\Category;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api')->except(['index', 'show']);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -47,14 +52,12 @@ class ProductController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
-        ]);
+        ])->user()->associate($request->user());
 
         return response()->json([
             "status" => "success",
             "message" => "Product created successfully",
             "Product" => $product], 201);
-
-        
     }
 
     /**
