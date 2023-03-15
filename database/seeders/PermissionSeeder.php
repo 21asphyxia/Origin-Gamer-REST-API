@@ -29,7 +29,11 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'delete all products']);
         Permission::create(['name' => 'delete own products']);
 
-        // Users
+        // Roles
+        Permission::create(['name' => 'assign roles']);
+        Permission::create(['name' => 'revoke roles']);
+        Permission::create(['name' => 'assign permissions']);
+        Permission::create(['name' => 'revoke permissions']);
         
     }
 }
