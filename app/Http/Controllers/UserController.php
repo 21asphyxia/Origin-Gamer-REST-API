@@ -16,71 +16,28 @@ class UserController extends Controller
     {
         $users = User::with('roles')->get();
 
+        return response()->json([
+            "status" => "success",
+            "users" => $users], 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function assignRoleToUser(Request $request, User $user)
     {
-        //
+        $user->assignRole($request->role);
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Role assigned to user successfully",
+            "user" => $user], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function revokeRoleFromUser(Request $request, User $user)
     {
-        //
-    }
+        $user->removeRole($request->role);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function show(User $user)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(User $user)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, User $user)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(User $user)
-    {
-        //
+        return response()->json([
+            "status" => "success",
+            "message" => "Role revoked from user successfully",
+            "user" => $user], 200);
     }
 }

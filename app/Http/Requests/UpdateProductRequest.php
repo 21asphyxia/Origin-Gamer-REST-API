@@ -13,7 +13,8 @@ class UpdateProductRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        // check if the user has the permission
+        return auth()->user()->can('update all products') || (auth()->user()->can('update own products') && $this->product->user()->is(auth()->user()));
     }
 
     /**
