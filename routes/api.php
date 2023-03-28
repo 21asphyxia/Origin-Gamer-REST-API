@@ -47,8 +47,10 @@ Route::controller(RoleController::class)->group(function () {
 // Permissions
 Route::get('permissions', [PermissionController::class, 'index'])->middleware('can:read permissions');
 
-// Role assignments
+// Role assignments and profile update
 Route::controller(UserController::class)->group(function () {
+    Route::post('profile', 'updateProfile')->middleware('auth:api');
+    
     Route::prefix('users')->group(function () {
         Route::get('/', 'index');
         Route::post('/{user}/roles', 'assignRoleToUser')->middleware('can:assign roles');
