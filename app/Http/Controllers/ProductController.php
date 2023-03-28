@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Category;
@@ -15,13 +16,28 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::all();
-
+        if($request->has('category')) {
+            $foundCategory = Category::firstWhere('name', $request->category);
+            
+            if(!$foundCategory) {
+                return response()->json([
+                    "status" => "error",
+                    "message" => "Category not found"], 404);
+            }
+            else {
+                $products = $foundCategory->products()->get();
+            }
+        }
+        else{
+            $products = Product::with('category')->get();
+        }
+        
         return response()->json([
             "status" => "success",
             "products" => $products], 200);
+
     }
 
     /**
@@ -69,6 +85,17 @@ class ProductController extends Controller
         return response()->json([
             "status" => "success",
             "product" => $product], 200);
+    }
+
+    public function filterByCategory($category)
+    {
+        $foundCategory = Category::firstOrfail($category);
+    
+        $products = $foundCategory->products;
+
+        return response()->json([
+            "status" => "success",
+            "products" => $products], 200);
     }
 
     /**
