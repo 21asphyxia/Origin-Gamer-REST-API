@@ -53,6 +53,7 @@ Route::controller(ProductController::class)->group(function () {
     Route::prefix('products')->group(function () {
         Route::get('/', 'index')->middleware('can:read products');
         Route::get('/{product}', 'show')->middleware('can:read products');
+        // Route::get('/filter?category={category}', 'filterByCategory')->middleware('can:read products');
         Route::post('/', 'store')->middleware('can:create products');
         Route::put('/{product}', 'update')->middleware('permission:update all products|update own products');
         Route::delete('/{product}', 'destroy')->middleware('permission:delete all products|delete own products');
