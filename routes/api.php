@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -41,8 +42,9 @@ Route::get('permissions', [PermissionController::class, 'index'])->middleware('c
 // Role assignments
 Route::controller(UserController::class)->group(function () {
     Route::prefix('users')->group(function () {
-        Route::post('/{user}/roles', 'assignRolesToUser')->middleware('can:assign roles');
-        Route::delete('/{user}/roles', 'revokeRolesFromUser')->middleware('can:revoke roles');
+        Route::get('/', 'index');
+        Route::post('/{user}/roles', 'assignRoleToUser')->middleware('can:assign roles');
+        Route::delete('/{user}/roles', 'revokeRoleFromUser')->middleware('can:revoke roles');
     });
 });
 

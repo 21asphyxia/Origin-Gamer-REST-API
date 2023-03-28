@@ -112,10 +112,17 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        $product->delete();
+        if(auth()->user()->can('update all products') || (auth()->user()->can('update own products') && $product->user()->is(auth()->user()))) {
+            
+            $product->delete();
+    
+            return response()->json([
+                "status" => "success",
+                "message" => "Product deleted successfully"], 200);
+            }
+            else return response()->json([
+                "status" => "error",
+                "message" => "You are not authorized to delete this product"], 403);
 
-        return response()->json([
-            "status" => "success",
-            "message" => "Product deleted successfully"], 200);
     }
 }

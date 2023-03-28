@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -23,7 +24,9 @@ class UserController extends Controller
 
     public function assignRoleToUser(Request $request, User $user)
     {
-        $user->assignRole($request->role);
+        $role = Role::findByName($request->role);
+
+        $user->syncRoles($role);
 
         return response()->json([
             "status" => "success",
@@ -33,7 +36,9 @@ class UserController extends Controller
 
     public function revokeRoleFromUser(Request $request, User $user)
     {
-        $user->removeRole($request->role);
+        $role = Role::findByName($request->role);
+
+        $user->removeRole($role);
 
         return response()->json([
             "status" => "success",

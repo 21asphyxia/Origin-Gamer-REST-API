@@ -9,7 +9,7 @@ class PermissionController extends Controller
 {
     public function index()
     {
-        $permissions = Permission::all();
+        $permissions = Permission::all()->pluck('name');
 
         return response()->json([
             "status" => "success",
