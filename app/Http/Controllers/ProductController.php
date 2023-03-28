@@ -50,6 +50,8 @@ class ProductController extends Controller
             'price' => $request->price,
         ])->user()->associate($request->user());
 
+        $product->save();
+
         return response()->json([
             "status" => "success",
             "message" => "Product created successfully",

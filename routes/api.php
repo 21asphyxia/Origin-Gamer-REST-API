@@ -54,8 +54,8 @@ Route::controller(ProductController::class)->group(function () {
         Route::get('/', 'index')->middleware('can:read products');
         Route::get('/{product}', 'show')->middleware('can:read products');
         Route::post('/', 'store')->middleware('can:create products');
-        Route::put('/{product}', 'update')->middleware('can:update all products|update own products');
-        Route::delete('/{product}', 'destroy')->middleware('can:delete all products|delete own products');
+        Route::put('/{product}', 'update')->middleware('permission:update all products|update own products');
+        Route::delete('/{product}', 'destroy')->middleware('permission:delete all products|delete own products');
     });
 });
 
