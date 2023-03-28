@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -20,6 +23,32 @@ class UserController extends Controller
         return response()->json([
             "status" => "success",
             "users" => $users], 200);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        Validator::make($request->all(), [
+            'name' => 'string|max:255',
+            'email' => [
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users')->ignore($user->id),
+            ],  
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        if($request->has('password')){
+            $request['password'] = Hash::make($request->password);
+        }
+
+        $user->update($request->all());
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Profile updated successfully",
+            "user" => $user], 200);
     }
 
     public function assignRoleToUser(Request $request, User $user)
