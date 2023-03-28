@@ -6,12 +6,14 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'forgotPassword', 'resetPassword']]);
     }
 
     public function login(Request $request)
@@ -86,5 +88,46 @@ class AuthController extends Controller
                 'type' => 'bearer',
             ]
         ]);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string|email',
+        ]);
+
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+       
+        $message = $status === Password::RESET_LINK_SENT ? ['status' => __($status)] : ['email' => __($status)];
+        return response()->json([
+            $message
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
+
+                $user->save();
+            }
+        );
+
+        return $status === Password::PASSWORD_RESET
+            ?response()->json(['message'=>'successful reset'])
+            : response()->json(['message'=>'something went wrong']);
     }
 }
