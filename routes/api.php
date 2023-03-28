@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
+// Auth
 Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'login');
     Route::post('register', 'register');
@@ -24,6 +27,45 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('refresh', 'refresh');
 });
 
-Route::apiResource('products', ProductController::class);
+// Roles
+Route::controller(RoleController::class)->group(function () {
+    Route::prefix('roles')->group(function () {
+        Route::get('/', 'index')->middleware('can:read roles');
+        Route::post('/{role}/permissions', 'assignPermissionsToRole')->middleware('can:assign permissions');
+        Route::delete('/{role}/permissions', 'revokePermissionsFromRole')->middleware('can:revoke permissions');
+    });
+});
 
-Route::apiResource('categories', CategoryController::class);
+// Permissions
+Route::get('permissions', [PermissionController::class, 'index'])->middleware('can:read permissions');
+
+// Role assignments
+Route::controller(UserController::class)->group(function () {
+    Route::prefix('users')->group(function () {
+        Route::get('/', 'index');
+        Route::post('/{user}/roles', 'assignRoleToUser')->middleware('can:assign roles');
+        Route::delete('/{user}/roles', 'revokeRoleFromUser')->middleware('can:revoke roles');
+    });
+});
+
+// Products
+Route::controller(ProductController::class)->group(function () {
+    Route::prefix('products')->group(function () {
+        Route::get('/', 'index')->middleware('can:read products');
+        Route::get('/{product}', 'show')->middleware('can:read products');
+        Route::post('/', 'store')->middleware('can:create products');
+        Route::put('/{product}', 'update')->middleware('permission:update all products|update own products');
+        Route::delete('/{product}', 'destroy')->middleware('permission:delete all products|delete own products');
+    });
+});
+
+// Categories
+Route::controller(CategoryController::class)->group(function () {
+    Route::prefix('categories')->group(function () {
+        Route::get('/', 'index')->middleware('can:read categories');
+        Route::get('/{category}', 'show')->middleware('can:read categories');
+        Route::post('/', 'store')->middleware('can:create categories');
+        Route::put('/{category}', 'update')->middleware('can:update categories');
+        Route::delete('/{category}', 'destroy')->middleware('can:delete categories');
+    });
+});
